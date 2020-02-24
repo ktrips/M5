@@ -15,10 +15,10 @@ GroveI2CMiniMoto motor2(0x60);// Arduinoの場合は1ビット右シフトする
 #include <M5StickC.h>
 
 // You should get Auth Token in the Blynk App.
-char auth[] = "o3gcKzcieuMb-oEppDllqWpPIsO9KmgL"; //"jpLVTlZCsWPGhdx8LM5TUjgfAIDTz4S1"; //"o3gcKzcieuMb-oEppDllqWpPIsO9KmgL"; //BlynkアプリのYourAuthTokenを入力";
+char auth[] = "xxxx"; //BlynkアプリのYourAuthTokenを入力";
 // Your WiFi credentials.
-char ssid[] = "elecom2g-0507d0"; //"KtriPhone"; //elecom2g-0507d0"; //"Buffalo-G-6BC0";
-char pass[] = "4858634471451"; //"mft2016a"; //"4858634471451"; //"vkvsiivc4r6xb";
+char ssid[] = "yyyy";
+char pass[] = "zzzz";
 
 long Speed;
 long Speed1, Speed2;
