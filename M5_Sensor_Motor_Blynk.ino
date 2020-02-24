@@ -2,8 +2,8 @@
 #include<Wire.h>
 
 #include<GroveI2CMiniMorter.h>
-GroveI2CMiniMoto morter1(0x62);// Arduinoの場合は1ビット右シフトする
-GroveI2CMiniMoto morter2(0x60);// Arduinoの場合は1ビット右シフトする
+GroveI2CMiniMoto motor1(0x62);// Arduinoの場合は1ビット右シフトする
+GroveI2CMiniMoto motor2(0x60);// Arduinoの場合は1ビット右シフトする
 #define CONTRL 0x00 //レジスタのサブアドレス
 #define FAULT 0x01 //レジスタのサブドレス
 
@@ -15,14 +15,14 @@ GroveI2CMiniMoto morter2(0x60);// Arduinoの場合は1ビット右シフトす�
 #include <M5StickC.h>
 
 // You should get Auth Token in the Blynk App.
-char auth[] = "xxxx" //BlynkアプリのYourAuthTokenを入力";
+char auth[] = "o3gcKzcieuMb-oEppDllqWpPIsO9KmgL"; //"jpLVTlZCsWPGhdx8LM5TUjgfAIDTz4S1"; //"o3gcKzcieuMb-oEppDllqWpPIsO9KmgL"; //BlynkアプリのYourAuthTokenを入力";
 // Your WiFi credentials.
-char ssid[] = "yyyy";
-char pass[] = "zzzz"; 
+char ssid[] = "elecom2g-0507d0"; //"KtriPhone"; //elecom2g-0507d0"; //"Buffalo-G-6BC0";
+char pass[] = "4858634471451"; //"mft2016a"; //"4858634471451"; //"vkvsiivc4r6xb";
 
 long Speed;
 long Speed1, Speed2;
-long SpeedL, SpeedR;
+long SpeedR, SpeedL;
 
 #include <RPR-0521RS.h>
 RPR0521RS rpr0521rs;
@@ -47,67 +47,43 @@ BLYNK_WRITE(V0) {
   Serial.print(" Speed: ");
   Serial.print(Speed);
 
-
   SpeedR = Speed - Speed1;
   SpeedL = Speed - Speed2;
+  if(x >= 0){
+      Speed1 = abs(x);
+      Speed2 = 0;
+  }else{
+      Speed1 = 0;
+      Speed2 = abs(x);
+  }
+  Serial.print("  R:");
+  Serial.print(SpeedR);
+  Serial.print("  L:");
+  Serial.println(SpeedL);  
+  Blynk.virtualWrite(V5, SpeedR);
+  Blynk.virtualWrite(V6, SpeedL);
+
 
   if(y >= 0){
-    if(x >= 0){
-      Speed1 = abs(x);
-      Speed2 = 0;
-    }else{
-      Speed1 = 0;
-      Speed2 = abs(x);
-    }
-
-    Serial.print("  R:");
-    Serial.print(SpeedR);
-    Serial.print("  L:");
-    Serial.println(SpeedL);
-    
-    Blynk.virtualWrite(V5, SpeedR);
-    Blynk.virtualWrite(V6, SpeedL);
-
-    morter1.forwardDrive(SpeedR); 
-    morter2.forwardDrive(SpeedL);
+    motor1.forwardDrive(SpeedR); 
+    motor2.forwardDrive(SpeedL);
     M5.Lcd.println("Fwd!");
-    
-    delay(500);
-    morter1.stop();
-    morter2.stop();
-    
+        
   }else{
-    if(x >= 0){
-      Speed1 = abs(x);
-      Speed2 = 0;
-    }else{
-      Speed1 = 0;
-      Speed2 = abs(x);
-    }
-    Serial.print("  -R:");
-    Serial.print(SpeedR); //(-(Speed - Speed1));
-    Serial.print("  -L:");
-    Serial.println(SpeedL); //(-Speed + Speed2);
+    motor1.reversalDrive(SpeedR);
+    motor2.reversalDrive(SpeedL);
+    M5.Lcd.println("Back!");    
 
-    Blynk.virtualWrite(V5, SpeedR);
-    Blynk.virtualWrite(V6, SpeedL);
-
-    morter1.reversalDrive(SpeedR); //Speed - Speed1);
-    morter2.reversalDrive(SpeedL); //Speed - Speed2);
-    M5.Lcd.println("Back!");
-    
-    delay(500);
-    //Motor.stop(MOTOR1);
-    //Motor.stop(MOTOR2);
-    morter1.stop();
-    morter2.stop();
   }
+  delay(500);
+  motor1.stop();
+  motor2.stop();
 }
 
 void setup() {
   Serial.begin(115200);
   while (!Serial);
-  Serial.println("Start MiniMotor");
+  Serial.println("Start Motor");
   Blynk.begin(auth, ssid, pass);
   Wire.begin(32, 33);
   
@@ -115,7 +91,7 @@ void setup() {
   M5.Lcd.setTextSize(2);
   M5.Lcd.setRotation(3);
   
-  M5.Lcd.println("Start MiniMtr");
+  M5.Lcd.println("Start Motor");
   M5.Lcd.println(ssid);
   
   byte rc;
@@ -140,9 +116,7 @@ void loop() {
     if (als_val != RPR0521RS_ERROR) {
       Serial.print(als_val);
       Serial.println(F(" [lx]"));
-      
       Blynk.virtualWrite(V7, round(als_val));
-
     }
         
     Wire.begin(32,33);
@@ -154,14 +128,14 @@ void loop() {
       Serial.println(F(" Danger!"));
       M5.Lcd.printf(" Danger!");
 
-      morter1.reversalDrive(50);
-      morter2.reversalDrive(50);
+      motor1.reversalDrive(50);
+      motor2.reversalDrive(50);
       delay(300);
-      morter1.forwardDrive(50);
-      morter2.reversalDrive(50);
+      motor1.forwardDrive(50);
+      motor2.reversalDrive(50);
       delay(500);
-      morter1.stop();
-      morter2.stop();
+      motor1.stop();
+      motor2.stop();
       
     } else {
       Serial.println(F(" Go!Go!"));
@@ -169,6 +143,5 @@ void loop() {
       
     }
   }
-
   delay(500);
 }
